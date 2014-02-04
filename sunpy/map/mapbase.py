@@ -103,7 +103,10 @@ class GenericMap(astropy.nddata.NDData):
         self._validate()
 
         self.norm = self._get_norm()
-
+        
+        #if self.meta.get('crota2') != 0:
+            # rotate the map data and set crota2 to zero!
+            
     def __getitem__(self, key):
         """ This should allow indexing by physical coordinate """
         raise NotImplementedError(
