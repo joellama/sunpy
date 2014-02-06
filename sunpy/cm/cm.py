@@ -58,7 +58,7 @@ cmlist = {
           'sdoaia1600': sdoaia1600,
           'sdoaia1700': sdoaia1700,
           'sdoaia4500': sdoaia4500,
-          'sdohmimag': cm.Greys,
+          'sdohmimag': cm.Greys_r,
           'sohoeit171': sohoeit171,
           'sohoeit195': sohoeit195,
           'sohoeit284': sohoeit284,

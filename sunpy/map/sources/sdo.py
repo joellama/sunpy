@@ -61,7 +61,8 @@ class AIAMap(GenericMap):
     def is_datasource_for(cls, data, header, **kwargs):
         """Determines if header corresponds to an AIA image"""
         return header.get('instrume', '').startswith('AIA')
-        
+
+# need to check for content of map
 class HMIMap(GenericMap):
     """HMI Image Map definition"""
     
@@ -80,29 +81,40 @@ class HMIMap(GenericMap):
         self.cmap = cm.get_cmap('sdohmimag')
         #the following should really be happening in map base!
         self.data = self.rotate(np.deg2rad(self.rotation_angle.get('y'))).data
-        self.data = np.ma.masked_array(self.data,np.isnan(self.data))
+        #self.data = np.ma.masked_array(self.data,np.isnan(self.data))
 
         # next set crota2 to zero
-        
-    def unsigned_magnetic_flux(self):
+    
+    def _angle_of_incidence(self):
+        # calculate the angle of emission
+        xx, yy = self.pixel_to_data()
+        theta = np.sqrt(xx**2 + yy**2) / (60 * 60)
+        omega = self.rsun_arcseconds / (60 * 60)
+        angles = np.arccos(np.sqrt( (np.cos(theta)**2 - np.cos(omega)**2)) / np.sin(omega))
+        return angles
+    
+    def unsigned_magnetic_flux(self, min_field=50, max_field=500):
         """Return the unsigned magnetic flux for the map"""
         # the following value should probably be available in map
-        arcsec_to_m = np.sin(np.deg2rad(1/(60.*60.))) * Quantity(self.dsun, 'm')
-        pixel_area = arcsec_to_m**2 * self.scale['x'] * self.scale['y']
-        xx, yy = self.pixel_to_data()
-        angles = np.sqrt(xx**2 + yy**2)/self.rsun_arcseconds * 90.0
-        angles = np.ma.masked_array(angles,np.isnan(angles))
-        pixel_angles = np.sqrt(xx**2 + yy**2)/self.rsun_arcseconds * 90.0
-        factor = 1/np.cos(np.deg2rad(angles))**2
-        bflux = pixel_area.to('cm**2') * Quantity(self.data,'gauss') * factor.transpose()
-        return np.sum(np.abs(bflux))
+        arcsec_to_cm = np.sin(np.deg2rad(1/(60.*60.))) * Quantity(self.dsun, 'm').to('cm').value
+        pixel_area_cm2 = arcsec_to_cm**2 * self.scale['x'] * self.scale['y']
+        
+        angles = self._angle_of_incidence()
+        
+        factor = 1/np.cos(angles)**2
+        fields = np.ma.masked_outside(np.abs(self.data), min_field, max_field)
+        bflux = pixel_area_cm2 * fields * factor.transpose()
+        return np.sum(np.abs(bflux)) * Quantity(1, 'cm**2 gauss')
 
     def _get_norm(self):
         """Returns a Normalize object to be used with AIA data"""
         # byte-scaled images have most likely already been scaled
         if self.data.dtype == np.uint8:
             return None
-        return colors.Normalize(-300, 300)
+        if self.measurement == 'magnetogram':
+            norm = colors.Normalize(-300, 300)
+            
+        return norm
 
     @property
     def measurement(self):
