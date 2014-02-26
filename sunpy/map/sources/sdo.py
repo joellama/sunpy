@@ -101,7 +101,7 @@ class HMIMap(GenericMap):
         
         angles = self._angle_of_incidence()
         
-        factor = 1/np.cos(angles)**2
+        factor = 1/np.cos(angles)
         fields = np.ma.masked_outside(np.abs(self.data), min_field, max_field)
         bflux = pixel_area_cm2 * fields * factor.transpose()
         return np.sum(np.abs(bflux)) * Quantity(1, 'cm**2 gauss')
