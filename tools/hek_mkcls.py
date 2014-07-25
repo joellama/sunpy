@@ -15,7 +15,7 @@ to use completion.
 
 Events are EventType objects. When they are directly ORed together, they are
 joined together so that only one query is sent to the query. They may not
-be ANDed together because an event cannot be of multiple types.	
+be ANDed together because an event cannot be of multiple types.
 
 Events also have attributes which are _StringParamAttrWrapper, that means that
 they overload the Python operators for strings and return a _ParamAttr for
@@ -32,15 +32,17 @@ barring like.
 
 from __future__ import absolute_import
 
-import shutil
 import sys
 import os
 
 from collections import defaultdict
 
 EVENTS = [
-    'AR', 'CME', 'CD', 'CH', 'CW', 'FI', 'FE', 'FA', 'FL', 'LP', 'OS', 'SS',
-    'EF', 'CJ', 'PG', 'OT', 'NR', 'SG', 'SP', 'CR', 'CC', 'ER', 'TO'
+    'ActiveRegion', 'CME', 'CoronalDimming', 'CoronalHole', 'CoronalWave',
+    'Filament', 'FilamentEruption', 'FilamentActivation', 'Flare', 'Loop',
+    'Oscillation', 'Sunspot', 'EmergingFlux', 'CoronalJet', 'Plage', 'Other',
+    'NothingReported', 'Sigmoid', 'SpraySurge', 'CoronalRain', 'CoronalCavity',
+    'Eruption', 'TopologicalObject'
 ]
 
 # For some reason, the event type is "ce" but all its attributes start with
@@ -241,18 +243,20 @@ fields = {
     'WavelUnit': '_StringParamAttrWrapper'
 }
 
+
 def mk_gen(rest):
     """ Generate Misc class. """
     ret = ''
     ret += '@apply\nclass Misc(object):\n'
     for elem in sorted(rest):
-        ret += '    %s = %s(%r)\n' %(elem, fields[elem], elem)
+        ret += '    %s = %s(%r)\n' % (elem, fields[elem], elem)
     return ret
+
 
 def mk_cls(key, used, pad=1, nokeys=True, init=True, name=None, base='EventType'):
     if name is None:
         name = key
-    
+
     keys = sorted(
         [(k, v) for k, v in fields.iteritems() if k.startswith(key)]
     )
@@ -283,20 +287,20 @@ if __name__ == '__main__':
             'attrs.py')
         if len(sys.argv) <= 1 else sys.argv[1]
     )
-    
+
     if dest == '-':
         fd = sys.stdout
     else:
         fd = open(dest, 'w')
-    
+
     tmplfd = open(tmpl)
-    
+
     while True:
         buf = tmplfd.read(BUFFER)
         if not buf:
             break
         fd.write(buf)
-    
+
     fd.write('\n\n')
     fd.write('\n\n'.join(mk_cls(evt, used, name=NAMES[evt]) for evt in EVENTS))
     fd.write('\n\n')
@@ -305,5 +309,3 @@ if __name__ == '__main__':
     fd.write('\n\n'.join(mk_cls(evt, used, 1, 0, 0, NAMES[evt], 'object') for evt in OTHER))
     fd.write('\n\n')
     fd.write(mk_gen(set(fields) - used))
-    
-
