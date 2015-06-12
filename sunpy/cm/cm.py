@@ -55,6 +55,16 @@ trace1600 = ct.trace_color_table('1600')
 trace1700 = ct.trace_color_table('1700')
 traceWL = ct.trace_color_table('WL')
 
+irissji1330 = ct.iris_sji_color_table('1330')
+irissji1400 = ct.iris_sji_color_table('1400')
+irissji1600 = ct.iris_sji_color_table('1600')
+irissji2796 = ct.iris_sji_color_table('2796')
+irissji2832 = ct.iris_sji_color_table('2832')
+irissji5000 = ct.iris_sji_color_table('5000')
+irissjiFUV = ct.iris_sji_color_table('FUV')
+irissjiNUV = ct.iris_sji_color_table('NUV')
+irissjiSJI_NUV = ct.iris_sji_color_table('SJI_NUV')
+
 hmimag = ct.hmi_mag_color_table()
 
 cmlist = {
@@ -96,15 +106,15 @@ cmlist = {
           'trace1700': trace1700,
           'traceWL': traceWL,
           'hmimag': hmimag,
-          'irissji1330': ct.iris_sji_color_table('1330'),
-          'irissji1400': ct.iris_sji_color_table('1400'),
-          'irissji1600': ct.iris_sji_color_table('1600'),
-          'irissji2796': ct.iris_sji_color_table('2796'),
-          'irissji2832': ct.iris_sji_color_table('2832'),
-          'irissji5000': ct.iris_sji_color_table('5000'),
-          'irissjiFUV': ct.iris_sji_color_table('FUV'),
-          'irissjiNUV': ct.iris_sji_color_table('NUV'),
-          'irissjiSJI_NUV': ct.iris_sji_color_table('SJI_NUV')
+          'irissji1330': irissji1330,
+          'irissji1400': irissji1400,
+          'irissji1600': irissji1600,
+          'irissji2796': irissji2796,
+          'irissji2832': irissji2832,
+          'irissji5000': irissji5000,
+          'irissjiFUV': irissjiFUV,
+          'irissjiNUV': irissjiNUV,
+          'irissjiSJI_NUV': irissjiSJI_NUV
 }
 
 # Register the colormaps with matplotlib so plt.get_cmap('sdoaia171') works
