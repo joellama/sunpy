@@ -5,10 +5,18 @@ Some very beta tools for IRIS
 import sunpy.io
 import sunpy.time
 import sunpy.map
+from astropy.utils.data import download_file
+import os.path
+from astropy.io import fits
+from sunpy.util.net import url_exists
+from shutil import move
+from os.path import basename
+from sunpy.time import parse_time
+from datetime import timedelta
 
 __all__ = ['SJI_to_cube']
 
-def SJI_to_cube(filename, start=0, stop=None, hdu=0):
+def SJI_to_cube(filename):
     """
     Read a SJI file and return a MapCube
 
@@ -20,15 +28,6 @@ def SJI_to_cube(filename, start=0, stop=None, hdu=0):
     ----------
     filename: string
         File to read
-
-    start: int
-        Temporal axis index to create MapCube from
-
-    stop: int
-        Temporal index to stop MapCube at
-
-    hdu: int
-        Choose hdu index
 
     Returns
     -------
@@ -54,3 +53,29 @@ def SJI_to_cube(filename, start=0, stop=None, hdu=0):
         m.meta['DATE-OBS'] = splits[i].center.isoformat()
 
     return iris_cube
+
+def get_level1_file(level2_file):
+    """Given a IRIS SJI Level 2 file download the associated level 1 individual
+    SJI files"""
+    base_url = 'http://www.lmsal.com/solarsoft/'
+    f = fits.open(level2_file)
+
+    filenames = [a[3][1:] for a in f[2].data]
+
+    for full_file_name in filenames:
+#        if url_exists(os.path.join(base_url, full_file_name)):
+        l = download_file(os.path.join(base_url, full_file_name))
+        real_name = basename(full_file_name)
+        print(real_name)
+        move(l, os.path.join('/Users/schriste/Desktop/', real_name))
+
+def make_times(level2_file):
+    """Return the times of each of the exposures in a level 2 SJI file
+
+    ..note:
+
+    The results were checked with the original level 1 files and agreed to within
+    0.1 seconds"""
+    iris = fits.open(level2_file)
+    times = [parse_time(iris[0].header['STARTOBS']) + timedelta(seconds=dt) for dt in iris[1].data[:,0]]
+    return times
