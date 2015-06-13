@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import numpy as np
 import sunpy.cm as cm
 from sunpy.map import GenericMap
+import matplotlib.colors as colors
 
 BAD_PIXEL_VALUE = -32768
 
@@ -41,11 +42,17 @@ class SJIMap(GenericMap):
 
     def __init__(self, data, header, **kwargs):
         GenericMap.__init__(self, data, header, **kwargs)
-        self.data = np.ma.masked_equal(self.data, BAD_PIXEL_VALUE)
-        self.meta['detector'] = "SJI"
-        self.meta['waveunit'] = "Angstrom"
-        self.meta['wavelnth'] = header['twave1']
-        self.cmap = cm.get_cmap('irissji' + str(self.meta['wavelnth']))
+        self.data = np.ma.masked_equal(data, BAD_PIXEL_VALUE)
+        if header.get('lvl_num') == 2:
+            self.meta['wavelnth'] = header.get('twave1')
+            self.meta['detector'] = header.get('instrume')
+            self.meta['waveunit'] = "Angstrom"
+        if header.get('lvl_num') == 1:
+            self.meta['wavelnth'] = int(header.get('img_path').split('_')[1])
+            self.meta['waveunit'] = "Angstrom"
+
+        self.plot_settings['cmap'] = cm.get_cmap('irissji' + str(int(self.meta['wavelnth'])))
+        self.plot_settings['norm'] = colors.PowerNorm(0.4)
 
     @classmethod
     def is_datasource_for(cls, data, header, **kwargs):
