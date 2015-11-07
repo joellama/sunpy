@@ -7,6 +7,7 @@ __email__ = "steven.d.christe@nasa.gov"
 
 from sunpy.map import GenericMap
 from sunpy.cm import cm
+from sunpy.time import parse_time
 
 import astropy.units as u
 
@@ -51,6 +52,8 @@ class RHESSIMap(GenericMap):
             self.meta['cunit2'] = 'arcsec'
             self.meta['ctype2'] = 'HPLT-TAN'
 
+        dt = parse_time(self.meta['date_end']) - parse_time(self.meta['date_obs'])
+        self.meta['exptime'] = dt.seconds
         self.meta['waveunit'] = 'keV'
         self.meta['wavelnth'] = [self.meta['energy_l'], self.meta['energy_h']]
         self.plot_settings['cmap'] = cm.get_cmap('rhessi')
