@@ -47,11 +47,20 @@ def SJI_to_cube(filename):
     headers = [hdus[hdu][1]]*(stop-start)
     datas = hdus[hdu][0][start:stop]
 
+    # Get the slit position
+    slit_x_keyword = 'SLTPX1IX'
+    slit_position_x = hdus[1][0][:, hdus[1][1][slit_x_keyword]]
+
+    slit_y_keyword = 'SLTPX2IX'
+    slit_position_y = hdus[1][0][:, hdus[1][1][slit_y_keyword]]
+
     # Make the cube:
     iris_cube = sunpy.map.Map(zip(datas, headers), cube=True)
     # Set the date/time
     for i, m in enumerate(iris_cube):
         m.meta['DATE-OBS'] = splits[i].center.isoformat()
+        m.meta.update({slit_y_keyword: slit_position_y[i]})
+        m.meta.update({slit_x_keyword: slit_position_x[i]})
 
     return iris_cube
 
