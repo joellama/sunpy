@@ -4,6 +4,7 @@ import numpy as np
 import sunpy.cm as cm
 from sunpy.map import GenericMap
 import matplotlib.colors as colors
+from sunpy.visualization import wcsaxes_compat
 
 __all__ = ['SJIMap']
 
@@ -62,3 +63,27 @@ class SJIMap(GenericMap):
         obs = header.get('INSTRUME', '').startswith('SJI')
         level = header.get('lvl_num') == 1
         return tele and obs
+
+    def draw_slit(self, axes=None, **kwargs):
+        """Draws the slit location over the SJI observation.
+
+        Parameters
+        ----------
+        axes: `~matplotlib.axes` or None
+        Axes to plot limb on or None to use current axes.
+
+        Returns
+        -------
+        lines: list
+            A list of `matplotlib.axvline` objects that have been plotted.
+
+        Notes
+        -----
+        keyword arguments are passed onto matplotlib.pyplot.plot
+        """
+
+        if not axes:
+            axes = wcsaxes_compat.gca_wcs(self.wcs)
+
+
+        axes.axvline(self.meta['SLTPX1IX'])
