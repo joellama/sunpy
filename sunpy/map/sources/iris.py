@@ -1,12 +1,13 @@
 from __future__ import absolute_import
 
 import numpy as np
-
+import sunpy.cm as cm
 from sunpy.map import GenericMap
+import matplotlib.colors as colors
 
 __all__ = ['SJIMap']
 
-BAD_PIXEL_VALUE = 1000000
+BAD_PIXEL_VALUE = -32768
 
 
 class SJIMap(GenericMap):
