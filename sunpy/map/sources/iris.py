@@ -6,6 +6,9 @@ from sunpy.map import GenericMap
 
 __all__ = ['SJIMap']
 
+BAD_PIXEL_VALUE = 1000000
+
+
 class SJIMap(GenericMap):
     """
     A 2D IRIS Slit Jaw Imager Map.
@@ -26,23 +29,30 @@ class SJIMap(GenericMap):
 
     IRIS was launched into a Sun-synchronous orbit on 27 June 2013.
 
-    .. warning::
-
-        This object can only handle level 1 SJI files.
-
     References
     ----------
     * `IRIS Mission Page <http://iris.lmsal.com>`_
     * `IRIS Analysis Guide <https://iris.lmsal.com/itn26/itn26.pdf>`_
     * `IRIS Instrument Paper <https://www.lmsal.com/iris_science/doc?cmd=dcur&proj_num=IS0196&file_type=pdf>`_
+    * `IRIS FITS Header keywords <https://www.lmsal.com/iris_science/doc?cmd=dcur&proj_num=IS0077&file_type=pdf>`_
     """
 
     def __init__(self, data, header, **kwargs):
         GenericMap.__init__(self, data, header, **kwargs)
+        self.data = np.ma.masked_equal(data, BAD_PIXEL_VALUE)
+        if header.get('lvl_num') == 2:
+            self.meta['wavelnth'] = header.get('twave1')
+            self.meta['detector'] = header.get('instrume')
+            self.meta['waveunit'] = "Angstrom"
+        if header.get('lvl_num') == 1:
+            self.meta['wavelnth'] = int(header.get('img_path').split('_')[1])
+            self.meta['waveunit'] = "Angstrom"
 
         self.meta['detector'] = "SJI"
         self.meta['waveunit'] = "Angstrom"
-        self.meta['wavelnth'] = header['twave1']
+
+        self.plot_settings['cmap'] = cm.get_cmap('irissji' + str(int(self.meta['wavelnth'])))
+        self.plot_settings['norm'] = colors.PowerNorm(0.4)
 
     @classmethod
     def is_datasource_for(cls, data, header, **kwargs):
