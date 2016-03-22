@@ -24,6 +24,7 @@ import sunpy.time
 
 __all__ = ['GenericLightCurve']
 
+
 class GenericLightCurve(object):
     """
     LightCurve(filepath)
@@ -70,10 +71,9 @@ class GenericLightCurve(object):
     def __init__(self, data, meta=None):
         self.data = pandas.DataFrame(data)
         if meta == '' or meta is None:
-	     self.meta = OrderedDict()
-	else:	
-             self.meta = OrderedDict(meta)
-	
+            self.meta = OrderedDict()
+    else:
+            self.meta = OrderedDict(meta)
     
     @property
     def header(self):
@@ -89,8 +89,8 @@ for compatability with map, please use meta instead""", Warning)
 
     @classmethod
     def from_time(cls, time, **kwargs):
-        '''Called by Conditional Dispatch object when valid time is passed as input to create method.'''
-	date = parse_time(time)
+        """Called by Conditional Dispatch object when valid time is passed as input to create method."""
+        date = parse_time(time)
         url = cls._get_url_for_date(date, **kwargs)
         filepath = cls._download(
             url, kwargs, err="Unable to download data for specified date"
@@ -99,7 +99,7 @@ for compatability with map, please use meta instead""", Warning)
 
     @classmethod
     def from_range(cls, start, end, **kwargs):
-        '''Called by Conditional Dispatch object when start and end time are passed as input to create method.'''
+        """Called by Conditional Dispatch object when start and end time are passed as input to create method."""
         url = cls._get_url_for_date_range(parse_time(start), parse_time(end))
         filepath = cls._download(
             url, kwargs, 
